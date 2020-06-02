@@ -102,7 +102,7 @@ onClickHandler = () => {
     axios.post(this.nodeServerUrl+"/upload",data,
     {
     headers: {
-      userName: userName+"_"+this.videoName,
+      userName: userName,
       type: 'videoUpload'
     },
       onUploadProgress: ProgressEvent => {
