@@ -1,3 +1,4 @@
+npm install
 npm install express-zip
 npm install multer
 npm install zip-folder

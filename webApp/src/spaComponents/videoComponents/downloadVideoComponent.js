@@ -21,57 +21,11 @@ class DownloadVideoComponent extends Component {
       this.nodeServerUrl = data.nodeServerUrl
       this.goApiUrl = data.goApiUrl
       this.pythonBackEndUrl = data.mlBackEndUrl
+      this.videoName = ""
 }
 
 componentDidMount(){
-this.heading.innerHTML = this.props.location.state.userName+"</br>Annotate Data Directly From Videos";
-}
-
-divideTheFrames = (type,name,current,total) =>{
-  console.log("Type: "+type+", Name: "+name+", current: "+current+", total: "+total)
-  var userName = this.props.location.state.userName
-  var imageType = 'jpeg'
-  var low = '1'
-  var high = '5'
-
-  if(type == "VideoUpload"){
-    var videoName =  name
-    var videoUrl = this.nodeServerUrl+'/img/'+userName+'/videos/'+videoName
-  }
-  else if(type == "YouTube")
-  {
-    var videoName =  this.videoName.value
-    var videoUrl = this.nodeServerUrl+'/videos/'+userName+'/downloads/'+videoName+'.mp4'
-  }
-
-  axios.post(this.pythonBackEndUrl+"/dividetheframes/",{
-    'userName':userName,
-    'videoName':videoName,
-    'videoUrl':videoUrl,
-    'imageType':imageType,
-    'low':low,
-    'high':high,
-    'server':this.nodeServerUrl,
-    'api':this.goApiUrl
-  })
-  .then(res => { // then print response status
-      //toast.success('upload success')
-      console.log("API message : ")
-      console.log(res)
-
-    if(type == "YouTube"){
-        this.goToeditPage();
-      }
-    else{
-      if(current == total-1){
-        this.goToeditPage();
-      }
-    }
-    })
-    .catch(err => { // then print response status
-    console.log("fail")
-    console.log(err)
-  })
+this.heading.innerHTML = this.props.location.state.userName+"</br>Censor People Directly From Videos";
 }
 
 checkMimeType=(event)=>{
@@ -98,8 +52,8 @@ checkMimeType=(event)=>{
 
 maxSelectFile=(event)=>{
     let files = event.target.files
-        if (files.length > 101) {
-           const msg = 'Only 10 images can be uploaded at a time'
+        if (files.length !=1) {
+           const msg = 'Only 1 images can be uploaded at a time'
            event.target.value = null
            return false;
       }
@@ -142,15 +96,13 @@ onClickHandler = () => {
     // filling FormData with selectedFiles(Array of objects)
     for(var x = 0; x<this.state.selectedFile.length; x++) {
       console.log('1-Video being uploaded: '+this.state.selectedFile[x].name)
-      videoNames.push(this.state.selectedFile[x].name)
       data.append('file', this.state.selectedFile[x])
     }
-
     // header carries information of userName to backend with data
     axios.post(this.nodeServerUrl+"/upload",data,
     {
     headers: {
-      userName: userName,
+      userName: userName+"_"+this.videoName,
       type: 'videoUpload'
     },
       onUploadProgress: ProgressEvent => {
@@ -160,22 +112,19 @@ onClickHandler = () => {
       },
     })
     .then(res => { // then print response status
-      for(var x = 0; x< videoNames.length; x++ ){
-        console.log('file name: '+videoNames[x])
-        this.divideTheFrames("VideoUpload",videoNames[x],x,videoNames.length)
-      }
-        // redirect to WorkingArea.js for viewing images
+      this.goToUploadPage(this.state.selectedFile[0].name)
     })
     .catch(err => { // then print response status
     console.log(err)
   })
 }
 
-goToeditPage = () =>{
-  var userName = this.props.location.state.userName;
+goToUploadPage = (videoName) =>{
+  console.log("videoname : "+videoName)
   this.props.history.push({
     pathname: '/editPage',
-    state: {userName: this.props.location.state.userName}
+    state: {userName: this.props.location.state.userName},
+    videoName : videoName
   })
 }
 
@@ -240,8 +189,8 @@ render() {
             Download
           </Button>
 
-          <Button className="StartButton" block bsSize="large" onClick={this.divideTheFrames} type="button">
-            Start Annotation
+          <Button className="StartButton" block bsSize="large" onClick={this.goToUploadPage} type="button">
+            Upload Images of People
           </Button>
           <br/>
           <p className = "errorMessage" ref = {c => this.Message = c}></p>
@@ -250,7 +199,7 @@ render() {
 
       <div className="signIn" ref = {c => this.Info = c}>
         <p className = "linkToAccount"> Download complete and not redirecting?Click here&nbsp;
-          <Link className="linkToSignUp" onClick={this.divideTheFrames}>Redirect</Link>
+          <Link className="linkToSignUp" onClick={this.goToUploadPage}>Redirect</Link>
         </p>
       </div>
       </div>

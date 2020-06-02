@@ -13,13 +13,15 @@ import (
 )
 
 type ImageNames struct {
-    Name  string
+    UserName  string
     ImageName string
+    VideoName string
 }
 
 type ImageData struct {
     UserName  string
     FileNames string
+    VideoName string
 }
 
 type CollectedData struct {
@@ -29,6 +31,7 @@ type CollectedData struct {
 
 type User struct {
   UserName string
+  VideoName string
 }
 /*
 

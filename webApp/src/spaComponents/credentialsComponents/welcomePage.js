@@ -13,15 +13,7 @@ class WelcomePage extends Component {
 
 componentDidMount(){
 // OnLoad function
-this.heading.innerHTML = this.props.location.state.userName+"</br>Annotation Tool";
-}
-
-redirecToEditPage = () =>{
-  var userName = this.props.location.state.userName;
-  this.props.history.push({
-    pathname: '/editPage',
-    state: {userName: this.props.location.state.userName}
-  })
+this.heading.innerHTML = this.props.location.state.userName+"</br>CensorPeople Tool";
 }
 
 UploadVideo = () =>{
@@ -32,7 +24,7 @@ UploadVideo = () =>{
 })
 }
 
-StartAnnotation = () =>{
+StartCensorPeople = () =>{
   var userName = this.props.location.state.userName;
   this.props.history.push({
     pathname: '/upload',
@@ -53,18 +45,11 @@ render() {
       <h1 className = "appName" ref = {c => this.heading = c}></h1>
       <div className="signIn">
         <form>
-        <p class = "signInHead">Annotation Tool</p>
+        <p class = "signInHead">CensoringPeople Tool</p>
         &nbsp;
-          <Button className="StartButton" block bsSize="large" onClick={this.StartAnnotation} type="button">
-            Upload Images
-          </Button>
 
           <Button className="StartButton" block bsSize="large" onClick={this.UploadVideo} type="button">
             Upload Videos
-          </Button>
-
-          <Button className="StartButton" block bsSize="large" onClick={this.redirecToEditPage} type="button">
-            View Images
           </Button>
 
           <br/>

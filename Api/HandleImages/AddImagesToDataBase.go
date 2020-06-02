@@ -25,6 +25,7 @@ func AddImagesToDataBase(w http.ResponseWriter, r *http.Request) {
   }
 
   userName := imagedata.UserName
+  videoName := imagedata.VideoName
   imagesNames := imagedata.FileNames
   splitData := strings.Split(imagesNames, ",")
 
@@ -36,7 +37,7 @@ func AddImagesToDataBase(w http.ResponseWriter, r *http.Request) {
 
   // loop over each entry and insert into database
   for i := 0;i<len(splitData);i++{
-    structData := ImageNames{userName,splitData[i]}
+    structData := ImageNames{userName,splitData[i],videoName}
     // To insert a single record
     _, err := collection.InsertOne(context.TODO(), structData)
     if err != nil {

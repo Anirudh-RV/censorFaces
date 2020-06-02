@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import '../../cssComponents/App.css';
 import styles from '../../cssComponents/myStyle.module.css';
 import NavigationBar from './navigationBar';
-import WorkingArea from './workingArea';
+import UploadMultipleFiles from './uploadMultipleFiles';
 
 class EditPage extends Component {
 //TODO : ADD Footer information
@@ -13,7 +13,7 @@ class EditPage extends Component {
       <p className="userName" ref = {c => this.UserTag = c}>{this.props.location.state.userName}</p>
       <body>
          <NavigationBar/>
-         <WorkingArea name={this.props.location.state.userName}/>
+         <UploadMultipleFiles userName={this.props.location.state.userName} videoName={this.props.location.videoName}/>
       </body>
      </div>
     );

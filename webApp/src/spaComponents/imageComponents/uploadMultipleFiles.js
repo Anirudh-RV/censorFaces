@@ -6,6 +6,16 @@ import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
 import Cookies from 'universal-cookie';
 import Button from 'react-bootstrap/Button';
 
+/*
+Get the two functions:
+1. cropFacesFromImages
+2. getMlOutPut
+
+working, pipeline :
+1. Upload Images
+2. cropFacesFromImages
+3. getMlOutPut
+*/
 class UploadMultipleFiles extends Component {
   constructor(props) {
     super(props);
@@ -20,7 +30,7 @@ class UploadMultipleFiles extends Component {
 }
 
 componentDidMount(){
-this.heading.innerHTML = this.props.location.state.userName+"</br>Annotate Images";
+this.heading.innerHTML = this.props.userName+"</br>CensorPeople on Video :"+this.props.videoName;
 }
 
 logOut = () =>{
@@ -77,10 +87,75 @@ for(var z = 0; z<err.length; z++) {// if message not same old that mean has erro
 return true;
 }
 
+cropFacesFromImages = () =>{
+  var userName = this.props.name
+  var imageName = this.state.imageNames[this.state.index]
+  var url = this.nodeServerUrl+"/img/"+this.props.name+"/images/"+this.state.imageNames[this.state.index]
+  var mlOutPutUrl = this.nodeServerUrl+"/img/"+this.props.name+"/images/yoloOutput_"+this.props.name+"_"+imageName
+
+  axios.post(this.pythonBackEndUrl+"/yolo/",{
+    'userName':userName,
+    'imageName':imageName,
+    'imageUrl':url,
+    'Coordinates':this.getCoordinates(),
+    'annotationLabels':this.annotationHashMap,
+    'server':this.nodeServerUrl,
+    'api':this.goApiUrl
+  })
+  .then(res => {
+      window.open(mlOutPutUrl, '_blank');
+    })
+    .catch(err => { // then print response status
+    console.log(err)
+    })
+}
+
+getMlOutPut = () =>{
+  var userName = this.props.name
+  var imageName = this.state.imageNames[this.state.index]
+  var url = this.nodeServerUrl+"/img/"+this.props.name+"/images/"+this.state.imageNames[this.state.index]
+  var mlOutPutUrl = this.nodeServerUrl+"/img/"+this.props.name+"/images/yoloOutput_"+this.props.name+"_"+imageName
+
+  axios.post(this.pythonBackEndUrl+"/yolo/",{
+    'userName':userName,
+    'imageName':imageName,
+    'imageUrl':url,
+    'Coordinates':this.getCoordinates(),
+    'annotationLabels':this.annotationHashMap,
+    'server':this.nodeServerUrl,
+    'api':this.goApiUrl
+  })
+  .then(res => {
+      window.open(mlOutPutUrl, '_blank');
+    })
+    .catch(err => { // then print response status
+    console.log(err)
+    })
+}
+
+// using Api, add names of the images being uploaded to a database
+sendToMlBackend = (files) =>{
+  axios.post(this.goApiUrl+"/getimages",{
+ 'username':this.props.userName,
+ 'videoName':this.props.videoName
+ })
+ .then(res => {
+      var imageNames = res.data.ImageNames
+      var uniqueNames = imageNames.filter((item, i, ar) => ar.indexOf(item) === i);
+      for(var x =0; x<uniqueNames.length;x++)
+      {
+        console.log("imageNames: "+uniqueNames[x])
+      }
+   })
+   .catch(err => { // then print response status
+   console.log(err)
+ })
+}
+
 // using Api, add names of the images being uploaded to a database
 addToBackendUsingApi = (files) =>{
       files = this.state.selectedFile
-      var userName = this.props.location.state.userName;
+      var userName = this.props.userName;
       var fileNames = "";
       for(var x =0; x<files.length-1;x++)
       {
@@ -90,7 +165,8 @@ addToBackendUsingApi = (files) =>{
       // api call
       axios.post(this.goApiUrl+"/insertimagedata",{
         'username': userName,
-        'filenames' : fileNames
+        'filenames' : fileNames,
+        'videoname' : this.props.videoName
       })
         .then(res => {
       })
@@ -111,18 +187,10 @@ onChangeHandler=event=>{
   }
 }
 
-redirecToEditPage = () =>{
-  var userName = this.props.location.state.userName;
-  this.props.history.push({
-    pathname: '/editPage',
-    state: {userName: this.props.location.state.userName}
-  })
-}
-
 onClickHandler = () => {
     const data = new FormData()
     // getting userName from input
-    var userName = this.props.location.state.userName;
+    var userName = this.props.userName;
     // filling FormData with selectedFiles(Array of objects)
     for(var x = 0; x<this.state.selectedFile.length; x++) {
       data.append('file', this.state.selectedFile[x])
@@ -131,7 +199,7 @@ onClickHandler = () => {
     axios.post(this.nodeServerUrl+"/upload",data,
     {
     headers: {
-      userName: this.props.location.state.userName,
+      userName: this.props.userName,
       userCredentials: userName,
       type : 'imageUpload'
     },
@@ -167,9 +235,14 @@ render() {
                 Upload
               </Button>
 
-              <Button className="StartButton" block bsSize="large" onClick={this.redirecToEditPage} type="button">
-                View Images
+              <Button className="StartButton" block bsSize="large" onClick={this.downloadVideo} type="button">
+                Download
               </Button>
+
+              <Button className="StartButton" block bsSize="large" onClick={this.sendToMlBackend} type="button">
+                GETIMAGES
+              </Button>
+
               <Button className="StartButton" block bsSize="large" onClick={this.logOut} type="button">
                 Log out
               </Button>

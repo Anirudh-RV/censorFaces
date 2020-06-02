@@ -27,6 +27,7 @@ func GetImages(w http.ResponseWriter, r *http.Request) {
          return
   }
   userName := user.UserName
+  videoName := user.VideoName
 
   // QUERYING MONGODB WITH name and returning the results
   // setting mongo variables with Collection : ImageNames
@@ -35,7 +36,7 @@ func GetImages(w http.ResponseWriter, r *http.Request) {
   collection := GetCollection(client,"ImageNames")
 
   // bson.M{} is the fiter that is being used
-  filterCursor, err := collection.Find(context.TODO(), bson.M{"name": userName})
+  filterCursor, err := collection.Find(context.TODO(), bson.M{"username": userName,"videoname":videoName})
   if err != nil {
       log.Fatal(err)
   }
