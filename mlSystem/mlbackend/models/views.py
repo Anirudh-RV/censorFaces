@@ -14,6 +14,26 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.csrf import csrf_exempt
 import json
 
+import requests
+from darkflow.net.build import TFNet
+# to read images from urls
+import os
+import time
+import ast
+import urllib.request
+
+# to read images from urls
+import PIL
+from PIL import Image
+import cv2
+import random
+import requests
+from darkflow.net.build import TFNet
+import tensorflow as tf
+import numpy as np
+from timeit import default_timer as timer
+import face_recognition.api as face_recognition
+
 '''
 Loading the cfg file to make a placeholder of the network/graph
 Filling that network/graph with the weights trained in the yolo9000.weights
@@ -60,8 +80,6 @@ def test_image(image_to_check, known_names, known_face_encodings):
             for unknown_encoding in unknown_encodings:
                 result = face_recognition.compare_faces(known_face_encodings, unknown_encoding)
                 distance = face_recognition.face_distance(known_face_encodings, unknown_encoding)
-                print("True") if True in result else print("False ")
-
             return distance[0],result[0]
         else:
             return "0","Many Faces or No Faces"
@@ -97,10 +115,13 @@ def censorPeople(request):
     # Decoding received data
     decodeddata = request.body.decode('utf-8')
     dictdata = ast.literal_eval(decodeddata)
+
     username = dictdata["userName"]
-    facesFolder = dictdata["facesFolder"]
-    videoUrl = dictdata["videoUrl"]
     videoName = dictdata["videoName"]
+    nodeServerUrl = dictdata["serverUrl"]
+
+    videoUrl = nodeServerUrl+'/img/'+username+'/videos/'+videoName
+    facesFolder = 'assets/'+username+"_"+videoName+"/"
     cap = cv2.VideoCapture(videoUrl)
     # Check if the webcam is opened correctly
     if not cap.isOpened():
@@ -119,7 +140,6 @@ def censorPeople(request):
         ret, frame = cap.read()
         if frame is not None:
             framecount = framecount + 1
-            print("Framecount: "+str(framecount))
             img = frame
             img_h = img.shape[0]
             img_w = img.shape[1]
@@ -178,6 +198,7 @@ def censorPeople(request):
     files = {'file': open(outputVideo, 'rb')}
     headers = {
         'username': username,
+        'type':'videoUpload',
     }
     response = requests.request("POST", 'http://localhost:4000/upload', files=files, headers=headers)
     print("Backend Process Complete")
@@ -196,9 +217,8 @@ def makedir(videoName):
             directory = videoName
             path = os.path.join("assets", directory)
             os.mkdir(path)
-            print("Directory created: "+str(directory))
         except:
-            print("File exists, Continue")
+            pass
 
 '''
 Function: def cropFace(request)
@@ -212,29 +232,24 @@ The images in this directory will be used by the censorPeople function
 def cropFace(request):
     decodeddata = request.body.decode('utf-8')
     dictdata = ast.literal_eval(decodeddata)
+
     userName = dictdata["userName"]
-    imageUrls = dictdata["imageUrls"]
-    imageNames = dictdata["imageNames"]
+    imagesList = dictdata["imageNames"]
     videoName = dictdata["videoName"]
     nodeServerUrl = dictdata["serverUrl"]
-    imagesList = imageNames.split(",")
 
-    print("imagesList: ")
-    print(imagesList)
-    makedir(videoName)
+    # Make a separate directory for the video
+    makedir(userName+"_"+videoName)
 
     for images in imagesList:
         if images != ".DS_Store":
-            print("image name :"+images)
             # Load the cascade
             face_cascade = cv2.CascadeClassifier('Weights/haarcascade_frontalface_default.xml')
             # Read the input image
             url = nodeServerUrl+"/img/"+userName+"/images/"+images
-            print("url: "+str(url))
             req = urllib.request.urlopen(url)
             arr = np.asarray(bytearray(req.read()), dtype=np.uint8)
             img = cv2.imdecode(arr, -1) # 'Load it as it is'
-            print("imgae shape: "+str(img.shape))
             # Convert into grayscale
             gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
             # Detect faces
@@ -248,8 +263,7 @@ def cropFace(request):
             cropImage = img[y:y+h,x:x+w]
             cropImage = cropImage.copy()
             cropImage = cv2.resize(cropImage, dsize=(512, 512), interpolation=cv2.INTER_CUBIC)
-            cv2.imwrite('assets/'+videoName+"/"+images,cropImage)
-            print("writing: "+str('assets/'+videoName+"/"+images))
+            cv2.imwrite('assets/'+userName+"_"+videoName+"/"+images,cropImage)
 
     context = {"data":"data"}
     return render(request, 'index.html', context)

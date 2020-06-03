@@ -1,6 +1,5 @@
 **TODO**
-3. Add an option to record videos uploaded to the backend
-4. Get the cropFacesFromImages and getMlOutPut working
+5. Clean Code
 **DONE**
 1. Set up video upload
 2. Set up image upload
@@ -16,3 +15,4 @@
   f. save the processed frames into a video and make it available for download
 
 General guide : To Kill Ports : lsof -P | grep ':8080' | awk '{print $2}' | xargs kill -9
+4. Get the cropFacesFromImages and getMlOutPut working

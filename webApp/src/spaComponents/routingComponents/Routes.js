@@ -42,6 +42,7 @@ class Routes extends Component {
                  <Route path="/signin" component= {SignIn} />
                  <Route path="/welcomepage" component = {SignIn} />
                  <Route path="/upload" component = {SignIn} />
+                 <Route path="/editPage" component = {SignIn} />
                  <Route component={Error} />
                </Switch>
             </div>

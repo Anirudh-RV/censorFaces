@@ -6,16 +6,6 @@ import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
 import Cookies from 'universal-cookie';
 import Button from 'react-bootstrap/Button';
 
-/*
-Get the two functions:
-1. cropFacesFromImages
-2. getMlOutPut
-
-working, pipeline :
-1. Upload Images
-2. cropFacesFromImages
-3. getMlOutPut
-*/
 class UploadMultipleFiles extends Component {
   constructor(props) {
     super(props);
@@ -31,6 +21,29 @@ class UploadMultipleFiles extends Component {
 
 componentDidMount(){
 this.heading.innerHTML = this.props.userName+"</br>CensorPeople on Video :"+this.props.videoName;
+}
+
+// using Api, add names of the images being uploaded to a database
+addToBackendUsingApi = (files) =>{
+      files = this.state.selectedFile
+      var userName = this.props.userName;
+      var fileNames = "";
+      for(var x =0; x<files.length-1;x++)
+      {
+        fileNames = fileNames +files[x].name+ ",";
+      }
+      fileNames = fileNames + files[files.length-1].name;
+      // api call
+      axios.post(this.goApiUrl+"/insertimagedata",{
+        'username': userName,
+        'filenames' : fileNames,
+        'videoname' : this.props.videoName
+      })
+        .then(res => {
+      })
+      .catch(err => { // then print response status
+        console.log(err)
+    })
 }
 
 logOut = () =>{
@@ -87,94 +100,6 @@ for(var z = 0; z<err.length; z++) {// if message not same old that mean has erro
 return true;
 }
 
-cropFacesFromImages = () =>{
-  var userName = this.props.name
-  var imageName = this.state.imageNames[this.state.index]
-  var url = this.nodeServerUrl+"/img/"+this.props.name+"/images/"+this.state.imageNames[this.state.index]
-  var mlOutPutUrl = this.nodeServerUrl+"/img/"+this.props.name+"/images/yoloOutput_"+this.props.name+"_"+imageName
-
-  axios.post(this.pythonBackEndUrl+"/yolo/",{
-    'userName':userName,
-    'imageName':imageName,
-    'imageUrl':url,
-    'Coordinates':this.getCoordinates(),
-    'annotationLabels':this.annotationHashMap,
-    'server':this.nodeServerUrl,
-    'api':this.goApiUrl
-  })
-  .then(res => {
-      window.open(mlOutPutUrl, '_blank');
-    })
-    .catch(err => { // then print response status
-    console.log(err)
-    })
-}
-
-getMlOutPut = () =>{
-  var userName = this.props.name
-  var imageName = this.state.imageNames[this.state.index]
-  var url = this.nodeServerUrl+"/img/"+this.props.name+"/images/"+this.state.imageNames[this.state.index]
-  var mlOutPutUrl = this.nodeServerUrl+"/img/"+this.props.name+"/images/yoloOutput_"+this.props.name+"_"+imageName
-
-  axios.post(this.pythonBackEndUrl+"/yolo/",{
-    'userName':userName,
-    'imageName':imageName,
-    'imageUrl':url,
-    'Coordinates':this.getCoordinates(),
-    'annotationLabels':this.annotationHashMap,
-    'server':this.nodeServerUrl,
-    'api':this.goApiUrl
-  })
-  .then(res => {
-      window.open(mlOutPutUrl, '_blank');
-    })
-    .catch(err => { // then print response status
-    console.log(err)
-    })
-}
-
-// using Api, add names of the images being uploaded to a database
-sendToMlBackend = (files) =>{
-  axios.post(this.goApiUrl+"/getimages",{
- 'username':this.props.userName,
- 'videoName':this.props.videoName
- })
- .then(res => {
-      var imageNames = res.data.ImageNames
-      var uniqueNames = imageNames.filter((item, i, ar) => ar.indexOf(item) === i);
-      for(var x =0; x<uniqueNames.length;x++)
-      {
-        console.log("imageNames: "+uniqueNames[x])
-      }
-   })
-   .catch(err => { // then print response status
-   console.log(err)
- })
-}
-
-// using Api, add names of the images being uploaded to a database
-addToBackendUsingApi = (files) =>{
-      files = this.state.selectedFile
-      var userName = this.props.userName;
-      var fileNames = "";
-      for(var x =0; x<files.length-1;x++)
-      {
-        fileNames = fileNames +files[x].name+ ",";
-      }
-      fileNames = fileNames + files[files.length-1].name;
-      // api call
-      axios.post(this.goApiUrl+"/insertimagedata",{
-        'username': userName,
-        'filenames' : fileNames,
-        'videoname' : this.props.videoName
-      })
-        .then(res => {
-      })
-      .catch(err => { // then print response status
-        console.log(err)
-    })
-}
-
 // && this.checkFileSize(event) taken out for unlimited uploads
 onChangeHandler=event=>{
   var files = event.target.files
@@ -218,6 +143,74 @@ onClickHandler = () => {
     })
 }
 
+// using Api, add names of the images being uploaded to a database
+getImageNames = () =>{
+  axios.post(this.goApiUrl+"/getimages",{
+ 'UserName':this.props.userName,
+ 'VideoName':this.props.videoName
+ })
+ .then(res => {
+      var imageNames = res.data.ImageNames
+      var uniqueNames = imageNames.filter((item, i, ar) => ar.indexOf(item) === i)
+      this.cropFacesFromImages(uniqueNames)
+   })
+   .catch(err => { // then print response status
+   console.log(err)
+ })
+}
+
+cropFacesFromImages = (imageNames) =>{
+  var userName =this.props.userName
+  axios.post(this.pythonBackEndUrl+"/cropface/",{
+    'userName':userName,
+    'imageNames':imageNames,
+    'serverUrl':this.nodeServerUrl,
+    'videoName':this.props.videoName
+  })
+  .then(res => {
+      this.getMlOutPut(imageNames)
+    })
+    .catch(err => { // then print response status
+    console.log(err)
+    })
+}
+
+downloadComponent = (url) =>{
+  axios({
+  url: url, //your url
+  method: 'GET',
+  responseType: 'blob', // important
+  })
+  .then((response) => {
+   const url = window.URL.createObjectURL(new Blob([response.data]));
+   const link = document.createElement('a');
+   link.href = url;
+   link.setAttribute('download',this.props.userName+"_"+this.props.videoName); //or any other extension
+   document.body.appendChild(link);
+   link.click();
+  });
+}
+
+download = () => {
+  this.downloadComponent(this.nodeServerUrl+'/img/'+this.props.userName+'/videos/output_'+this.props.videoName+'.m4v');
+}
+
+getMlOutPut = (imageNames) =>{
+  var userName = 'user24'//this.props.userName
+  axios.post(this.pythonBackEndUrl+"/censorpeople/",{
+    'userName':userName,
+    'imageNames':imageNames,
+    'serverUrl':this.nodeServerUrl,
+    'videoName':'sampleVideo.mp4'//this.props.videoName
+  })
+  .then(res => {
+      this.downloadComponent(this.nodeServerUrl+'/img/'+this.props.userName+'/videos/output_'+this.props.videoName+'.m4v');
+    })
+    .catch(err => { // then print response status
+    console.log(err)
+    })
+}
+
 render() {
     return (
     <div>
@@ -235,12 +228,12 @@ render() {
                 Upload
               </Button>
 
-              <Button className="StartButton" block bsSize="large" onClick={this.downloadVideo} type="button">
+              <Button className="StartButton" block bsSize="large" onClick={this.download} type="button">
                 Download
               </Button>
 
-              <Button className="StartButton" block bsSize="large" onClick={this.sendToMlBackend} type="button">
-                GETIMAGES
+              <Button className="StartButton" block bsSize="large" onClick={this.getImageNames} type="button">
+                Start Censoring
               </Button>
 
               <Button className="StartButton" block bsSize="large" onClick={this.logOut} type="button">

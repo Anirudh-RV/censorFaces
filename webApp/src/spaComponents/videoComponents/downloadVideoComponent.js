@@ -95,7 +95,6 @@ onClickHandler = () => {
     var videoNames = []
     // filling FormData with selectedFiles(Array of objects)
     for(var x = 0; x<this.state.selectedFile.length; x++) {
-      console.log('1-Video being uploaded: '+this.state.selectedFile[x].name)
       data.append('file', this.state.selectedFile[x])
     }
     // header carries information of userName to backend with data
@@ -120,7 +119,6 @@ onClickHandler = () => {
 }
 
 goToUploadPage = (videoName) =>{
-  console.log("videoname : "+videoName)
   this.props.history.push({
     pathname: '/editPage',
     state: {userName: this.props.location.state.userName},
@@ -137,11 +135,9 @@ handleSubmit = () =>{
   })
   .then(res => { // then print response status
     //toast.success('upload success')
-    console.log(res)
     this.Message.innerHTML = "Download complete..."
   })
   .catch(err => {
-  console.log("fail")
   console.log(err)
   })
 }
@@ -160,9 +156,7 @@ render() {
         <Button className="StartButton" block bsSize="large" onClick={this.onClickHandler} type="button">
           Upload
         </Button>
-
       </div>
-
 
       <div className="signIn">
         <form onSubmit={this.handleSubmit}>
