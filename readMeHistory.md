@@ -1,5 +1,3 @@
-**TODO**
-5. Clean Code
 **DONE**
 1. Set up video upload
 2. Set up image upload
@@ -16,3 +14,4 @@
 
 General guide : To Kill Ports : lsof -P | grep ':8080' | awk '{print $2}' | xargs kill -9
 4. Get the cropFacesFromImages and getMlOutPut working
+5. Code Cleaned

@@ -1,8 +1,8 @@
-import React, { Component } from 'react';
-import '../../cssComponents/App.css';
-import styles from '../../cssComponents/myStyle.module.css';
-import NavigationBar from './navigationBar';
-import UploadMultipleFiles from './uploadMultipleFiles';
+import React, { Component } from 'react'
+import '../../cssComponents/App.css'
+import styles from '../../cssComponents/myStyle.module.css'
+import NavigationBar from './navigationBar'
+import UploadMultipleFiles from './uploadMultipleFiles'
 
 class EditPage extends Component {
 //TODO : ADD Footer information
@@ -16,7 +16,7 @@ class EditPage extends Component {
          <UploadMultipleFiles userName={this.props.location.state.userName} videoName={this.props.location.videoName}/>
       </body>
      </div>
-    );
+   )
   }
 }
-export default EditPage;
+export default EditPage

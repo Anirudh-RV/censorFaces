@@ -15,11 +15,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from models import views as v
+from models import censorPeople as cp
+from models import cropFaceComponent as cfc
 from django.conf.urls import include,url
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    url(r'cropface/',v.cropFace),
-    url(r'censorpeople/',v.censorPeople),
+    url(r'cropface/',cfc.cropFace),
+    url(r'censorpeople/',cp.censorPeople),
 ]

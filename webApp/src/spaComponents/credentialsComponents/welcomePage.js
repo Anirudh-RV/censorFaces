@@ -1,23 +1,23 @@
-import React, { Component } from 'react';
-import {Progress} from 'reactstrap';
-import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
-import Cookies from 'universal-cookie';
-import '../../cssComponents/App.css';
+import React, { Component } from 'react'
+import {Progress} from 'reactstrap'
+import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom'
+import Cookies from 'universal-cookie'
+import '../../cssComponents/App.css'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
-import Bootstrap from "react-bootstrap";
-import {FormGroup, FormControl} from "react-bootstrap";
-import { Link } from 'react-router-dom';
+import Bootstrap from "react-bootstrap"
+import {FormGroup, FormControl} from "react-bootstrap"
+import { Link } from 'react-router-dom'
 
 class WelcomePage extends Component {
 
 componentDidMount(){
 // OnLoad function
-this.heading.innerHTML = this.props.location.state.userName+"</br>CensorPeople Tool";
+this.heading.innerHTML = this.props.location.state.userName+"</br>CensorPeople Tool"
 }
 
 UploadVideo = () =>{
-  var userName = this.props.location.state.userName;
+  var userName = this.props.location.state.userName
   this.props.history.push({
     pathname: '/DownloadVideoComponent',
     state: {userName: this.props.location.state.userName}
@@ -25,7 +25,7 @@ UploadVideo = () =>{
 }
 
 StartCensorPeople = () =>{
-  var userName = this.props.location.state.userName;
+  var userName = this.props.location.state.userName
   this.props.history.push({
     pathname: '/upload',
     state: {userName: this.props.location.state.userName}
@@ -34,8 +34,8 @@ StartCensorPeople = () =>{
 
 logOut = () =>{
     const cookies = new Cookies()
-    cookies.remove('userName');
-    window.location.reload(false);
+    cookies.remove('userName')
+    window.location.reload(false)
 }
 
 
@@ -62,8 +62,8 @@ render() {
         </p>
       </div>
       </div>
-    );
+    )
   }
 }
 
-export default WelcomePage;
+export default WelcomePage

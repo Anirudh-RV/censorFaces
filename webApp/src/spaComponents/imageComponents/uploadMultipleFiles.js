@@ -1,14 +1,14 @@
-import React, { Component } from 'react';
-import axios from 'axios';
-import '../../cssComponents/App.css';
-import {Progress} from 'reactstrap';
-import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
-import Cookies from 'universal-cookie';
-import Button from 'react-bootstrap/Button';
+import React, { Component } from 'react'
+import axios from 'axios'
+import '../../cssComponents/App.css'
+import {Progress} from 'reactstrap'
+import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom'
+import Cookies from 'universal-cookie'
+import Button from 'react-bootstrap/Button'
 
 class UploadMultipleFiles extends Component {
   constructor(props) {
-    super(props);
+    super(props)
       this.state = {
         selectedFile: null,
         loaded:0
@@ -20,19 +20,19 @@ class UploadMultipleFiles extends Component {
 }
 
 componentDidMount(){
-this.heading.innerHTML = this.props.userName+"</br>CensorPeople on Video :"+this.props.videoName;
+this.heading.innerHTML = this.props.userName+"</br>CensorPeople on Video :"+this.props.videoName
 }
 
 // using Api, add names of the images being uploaded to a database
 addToBackendUsingApi = (files) =>{
       files = this.state.selectedFile
-      var userName = this.props.userName;
-      var fileNames = "";
+      var userName = this.props.userName
+      var fileNames = ""
       for(var x =0; x<files.length-1;x++)
       {
-        fileNames = fileNames +files[x].name+ ",";
+        fileNames = fileNames +files[x].name+ ","
       }
-      fileNames = fileNames + files[files.length-1].name;
+      fileNames = fileNames + files[files.length-1].name
       // api call
       axios.post(this.goApiUrl+"/insertimagedata",{
         'username': userName,
@@ -48,8 +48,8 @@ addToBackendUsingApi = (files) =>{
 
 logOut = () =>{
     const cookies = new Cookies()
-    cookies.remove('userName');
-    window.location.reload(false);
+    cookies.remove('userName')
+    window.location.reload(false)
 }
 
 checkMimeType=(event)=>{
@@ -64,14 +64,14 @@ checkMimeType=(event)=>{
      // compare file type find doesn't matach
          if (types.every(type => files[x].type !== type)) {
          // create error message and assign to container
-         err[x] = files[x].type+' is not a supported format\n';
+         err[x] = files[x].type+' is not a supported format\n'
        }
-     };
+     }
      for(var z = 0; z<err.length; z++) {// if message not same old that mean has error
          // discard selected file
         event.target.value = null
     }
-   return true;
+   return true
 }
 
 maxSelectFile=(event)=>{
@@ -79,25 +79,25 @@ maxSelectFile=(event)=>{
         if (files.length > 101) {
            const msg = 'Only 10 images can be uploaded at a time'
            event.target.value = null
-           return false;
+           return false
       }
-    return true;
+    return true
  }
 
 checkFileSize=(event)=>{
   let files = event.target.files
   let size = 2000000
-  let err = [];
+  let err = []
   for(var x = 0; x<files.length; x++) {
   if (files[x].size > size) {
-   err[x] = files[x].type+'is too large, please pick a smaller file\n';
+   err[x] = files[x].type+'is too large, please pick a smaller file\n'
  }
-};
+}
 for(var z = 0; z<err.length; z++) {// if message not same old that mean has error
   // discard selected file
  event.target.value = null
 }
-return true;
+return true
 }
 
 // && this.checkFileSize(event) taken out for unlimited uploads
@@ -115,7 +115,7 @@ onChangeHandler=event=>{
 onClickHandler = () => {
     const data = new FormData()
     // getting userName from input
-    var userName = this.props.userName;
+    var userName = this.props.userName
     // filling FormData with selectedFiles(Array of objects)
     for(var x = 0; x<this.state.selectedFile.length; x++) {
       data.append('file', this.state.selectedFile[x])
@@ -182,17 +182,18 @@ downloadComponent = (url) =>{
   responseType: 'blob', // important
   })
   .then((response) => {
-   const url = window.URL.createObjectURL(new Blob([response.data]));
-   const link = document.createElement('a');
-   link.href = url;
+   const url = window.URL.createObjectURL(new Blob([response.data]))
+   const link = document.createElement('a')
+   link.href = url
    link.setAttribute('download',this.props.userName+"_"+this.props.videoName); //or any other extension
-   document.body.appendChild(link);
-   link.click();
-  });
+   document.body.appendChild(link)
+   link.click()
+    }
+  )
 }
 
 download = () => {
-  this.downloadComponent(this.nodeServerUrl+'/img/'+this.props.userName+'/videos/output_'+this.props.videoName+'.m4v');
+  this.downloadComponent(this.nodeServerUrl+'/img/'+this.props.userName+'/videos/output_'+this.props.videoName+'.m4v')
 }
 
 getMlOutPut = (imageNames) =>{
@@ -204,7 +205,7 @@ getMlOutPut = (imageNames) =>{
     'videoName':'sampleVideo.mp4'//this.props.videoName
   })
   .then(res => {
-      this.downloadComponent(this.nodeServerUrl+'/img/'+this.props.userName+'/videos/output_'+this.props.videoName+'.m4v');
+      this.downloadComponent(this.nodeServerUrl+'/img/'+this.props.userName+'/videos/output_'+this.props.videoName+'.m4v')
     })
     .catch(err => { // then print response status
     console.log(err)
@@ -241,8 +242,8 @@ render() {
               </Button>
 	      </div>
       </div>
-    );
+    )
   }
 }
 
-export default UploadMultipleFiles;
+export default UploadMultipleFiles
